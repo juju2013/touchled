@@ -6,7 +6,7 @@
 \ include io.fs
 \ include pins64.fs
 \ \ include disassembler-m3.fs
-\ include svd.fs
+\ \ include svd.fs
 \ include misc.fs
 \ include interrupt.fs
 
@@ -32,6 +32,7 @@ include ws2812b.fs
 
 IMODE-FLOAT PB12 io-mode!
 
-72mhz 115200 baud USART1-BRR ! 1000 systick-hz
+72mhz 1000 systick-hz
+\ 72mhz 115200 baud USART1-BRR ! 1000 systick-hz
 \ led-init
 

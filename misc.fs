@@ -18,6 +18,7 @@ $E000E018 constant SYSTICK-CVR \ SysTick Current Value Register
   8000000 clock-hz !  115200 baud USART1-BRR !  \ fix console baud rate
 ;
 
+\  GD32 specific
 : 64MHz ( -- )  \ set the main clock to 64 MHz, keep baud rate at 115200
   8MHz                            \ make sure the PLL is off
   %1110 18 lshift                 \ PLLMUL = 16 *  8/2 = 64mhz
@@ -26,6 +27,23 @@ $E000E018 constant SYSTICK-CVR \ SysTick Current Value Register
   begin 25 bit RCC-CR bit@ until  \ wait for PLLRDY
   64000000 clock-hz !  115200 baud USART1-BRR !  \ fix console baud rate
 ;
+
+\  STM32 specific
+: 72MHz ( -- )  \ set the main clock to 72 MHz, keep baud rate at 115200
+  8MHz                            \ make sure the PLL is off
+  $12 FLASH-ACR !                 \ two flash mem wait states
+  16 bit RCC-CR bis!              \ set HSEON
+  begin 17 bit RCC-CR bit@ until  \ wait for HSERDY
+  1 16 lshift                     \ HSE clock is 8 MHz Xtal source for PLL
+  7 18 lshift or                  \ PLL factor: 8 MHz * 9 = 72 MHz = HCLK
+  4  8 lshift or                  \ PCLK1 = HCLK/2
+  2 14 lshift or                  \ ADCPRE = PCLK2/6
+            2 or  RCC-CFGR !      \ PLL is the system clock
+  24 bit RCC-CR bis!              \ set PLLON
+  begin 25 bit RCC-CR bit@ until  \ wait for PLLRDY
+  72000000 clock-hz !  115200 baud USART1-BRR !  \ fix console baud rate
+;
+
 
 : ++ticks ( -- ) 1 ticks +! ;  \ for use as systick irq handler
 
